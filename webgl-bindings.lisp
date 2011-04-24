@@ -10,7 +10,7 @@ before compiling PS code using this library.")
   `(symbol-macrolet ((*webgl-context* ,var))
      ,@body))
 
-(defmacro define-webgl-fun (&whole w name ret &body args)
+(defmacro define-webgl-fun (name ret &body args)
   "define gl:foo psmacros to expand to calls to the corresponding
 method on *webgl-context*. If there is a PS symbol macro named
 *webgl-context* (as defined by with-gl-context), it should expand to a
@@ -45,8 +45,10 @@ on *webgl-context*. If there is a PS symbol macro named
 var containing the context, otherwise the value of the CL special
 *webgl-context* will be used."
   (declare (ignore type))
-  `(ps:define-ps-symbol-macro ,name
-       (%webgl-global ,name)))
+  (let ((lname (if (consp name) (second name) name))
+        (jname (if (consp name) (first name) name)))
+   `(ps:define-ps-symbol-macro ,lname
+        (%webgl-global ,jname))))
 
 (define-webgl-global canvas html-canvas-element)
 (define-webgl-global drawing-buffer-width glsizei)
