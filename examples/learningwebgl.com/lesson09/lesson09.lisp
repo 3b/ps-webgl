@@ -344,10 +344,3 @@ void main(void) {
 (defvar twinkle t)
 #++
 (webgl-start)
-
-(aref stars 1)
-zoom
-tilt
-spin
-(setf zoom -10)
-(setf tilt 20)
