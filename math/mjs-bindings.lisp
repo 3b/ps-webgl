@@ -1,5 +1,7 @@
 (defpackage #:mjs-bindings
   (:use :cl :ps)
+  #-package-local-nicknames
+  (:nicknames #:%mjs #:mjs)
   (:export :*mjs-float-array-type*
            :vec
            :matrix

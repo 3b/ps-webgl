@@ -2,7 +2,8 @@
 (eval-when (:compile-toplevel :load-toplevel)
   (defpackage #:webgl-quat
     (:use :ps :cl)
-    (:local-nicknames (:m :mjs-bindings))))
+    #+package-local-nicknames
+    (:local-nicknames (:mjs :mjs-bindings))))
 
 (in-package #:webgl-quat)
 
@@ -16,7 +17,7 @@
   ;; not much less accurate?
   ;; (also try #.(sqrt 2d0))?
   (unless dest
-    (setf dest (new (m::*mjs-float-array-type* 16))))
+    (setf dest (new (mjs:*mjs-float-array-type* 16))))
   (let* ((w (aref q 0))
          (x (aref q 1))
          (y (aref q 2))
@@ -62,7 +63,7 @@
   ;; todo: maybe gensym 'dest' var if only using through macro?
   `(defun ,name (,@args dest)
      (unless dest
-       (setf dest (new (m:*mjs-float-array-type* 4))))
+       (setf dest (new (mjs:*mjs-float-array-type* 4))))
      (macrolet ((dest (w x y z)
                   `(progn (setf (qw dest) ,w
                                 (qx dest) ,x
@@ -80,7 +81,7 @@
           (* (aref axis 1) s)
           (* (aref axis 2) s))))
 #++
-(angle-axis-to-quaternion 0.5 (m:vec 1 2 3))
+(angle-axis-to-quaternion 0.5 (mjs:vec 1 2 3))
 
 
 (defun-dest quat-clone (q)
@@ -151,8 +152,8 @@
       (%nq aw ax ay az bw bx by bz))))
 
 #++
-(quat* (angle-axis-to-quaternion 0.5 (m:vec 1 2 3))
-       (angle-axis-to-quaternion 1.0 (m:vec 3 4 5)))
+(quat* (angle-axis-to-quaternion 0.5 (mjs:vec 1 2 3))
+       (angle-axis-to-quaternion 1.0 (mjs:vec 3 4 5)))
 
 
 (defmacro defun-qrot (name index &optional post)
@@ -209,13 +210,13 @@
 (defun-qrot q-rotate-world-y 2 t)
 (defun-qrot q-rotate-world-z 3 t)
 
-;(q-rotate-local-x (angle-axis-to-quaternion 2 (m:vec 1 1 0)) 1)
-;(q-rotate-local-y (angle-axis-to-quaternion 2 (m:vec 1 1 0)) 1)
-;(q-rotate-local-z (angle-axis-to-quaternion 2 (m:vec 1 1 0)) 1)
+;(q-rotate-local-x (angle-axis-to-quaternion 2 (mjs:vec 1 1 0)) 1)
+;(q-rotate-local-y (angle-axis-to-quaternion 2 (mjs:vec 1 1 0)) 1)
+;(q-rotate-local-z (angle-axis-to-quaternion 2 (mjs:vec 1 1 0)) 1)
 
-;(q-rotate-world-x (angle-axis-to-quaternion 2 (m:vec 1 1 0)) 1)
-;(q-rotate-world-y (angle-axis-to-quaternion 2 (m:vec 1 1 0)) 1)
-;(q-rotate-world-z (angle-axis-to-quaternion 2 (m:vec 1 1 0)) 1)
+;(q-rotate-world-x (angle-axis-to-quaternion 2 (mjs:vec 1 1 0)) 1)
+;(q-rotate-world-y (angle-axis-to-quaternion 2 (mjs:vec 1 1 0)) 1)
+;(q-rotate-world-z (angle-axis-to-quaternion 2 (mjs:vec 1 1 0)) 1)
 
 #++
 (q-rotate-local-x
@@ -223,14 +224,14 @@
   (q-rotate-local-z
    (q-rotate-world-x
     (q-rotate-world-y
-     (q-rotate-world-z (angle-axis-to-quaternion 2 (m:vec 1 1 0)) 1) 2) 3) 4) 5) 6)
+     (q-rotate-world-z (angle-axis-to-quaternion 2 (mjs:vec 1 1 0)) 1) 2) 3) 4) 5) 6)
 
 
 (defun quat-rotate-vector (quat vec dest)
   #++"rotate a vector VEC using specifed rotation quaternion Q, returning
 result as a new single-float vector."
   (unless dest
-    (setf dest (new (m:*mjs-float-array-type* 3))))
+    (setf dest (new (mjs:*mjs-float-array-type* 3))))
   (with-quat (qw qx qy qz ) quat
              (%with-nq (t1 t2 t3 t4)
                        (qw qx qy qz
@@ -248,8 +249,8 @@ result as a new single-float vector."
    (q-rotate-local-z
     (q-rotate-world-x
      (q-rotate-world-y
-      (q-rotate-world-z (angle-axis-to-quaternion 2 (m:vec 1 1 0)) 1) 2) 3) 4) 5) 6)
- (m:vec 1 2 3))
+      (q-rotate-world-z (angle-axis-to-quaternion 2 (mjs:vec 1 1 0)) 1) 2) 3) 4) 5) 6)
+ (mjs:vec 1 2 3))
 
 (defun-dest quat+ (a b)
   (dest (+ (aref a 0) (aref b 0))
@@ -257,8 +258,8 @@ result as a new single-float vector."
         (+ (aref a 2) (aref b 2))
         (+ (aref a 3) (aref b 3))))
 #++
-(quat+ (angle-axis-to-quaternion 0.5 (m:vec 1 2 3))
-       (angle-axis-to-quaternion 1.0 (m:vec 3 4 5)))
+(quat+ (angle-axis-to-quaternion 0.5 (mjs:vec 1 2 3))
+       (angle-axis-to-quaternion 1.0 (mjs:vec 3 4 5)))
 
 (defun-dest quat- (a b)
   (dest (- (aref a 0) (aref b 0))
@@ -267,8 +268,8 @@ result as a new single-float vector."
         (- (aref a 3) (aref b 3))))
 
 #++
-(quat- (angle-axis-to-quaternion 0.5 (m:vec 1 2 3))
-       (angle-axis-to-quaternion 1.0 (m:vec 3 4 5)))
+(quat- (angle-axis-to-quaternion 0.5 (mjs:vec 1 2 3))
+       (angle-axis-to-quaternion 1.0 (mjs:vec 3 4 5)))
 
 (defun-dest quat-inverse (quat)
   (dest (aref quat 0)
@@ -276,7 +277,7 @@ result as a new single-float vector."
         (- (aref quat 2))
         (- (aref quat 3))))
 #++
-(quat-inverse (angle-axis-to-quaternion 0.5 (m:vec 1 2 3)))
+(quat-inverse (angle-axis-to-quaternion 0.5 (mjs:vec 1 2 3)))
 
 (macrolet ((%mat* (a b d)
            ;; build an inline matrix multiply fron lists of elements
@@ -369,7 +370,7 @@ result as a new single-float vector."
 
   (defun translation-quat-matrix (v q d)
     (unless d
-      (setf d (new (m::*mjs-float-array-type* 16))))
+      (setf d (new (mjs:*mjs-float-array-type* 16))))
     ;; should this be transposed?
     (let ((qw (aref q 0))
           (qx (aref q 1))
@@ -411,7 +412,7 @@ result as a new single-float vector."
                     (%mat* ,avars ,b ,drefs)))))
    (defun quat-rotate-matrix (quat matrix dest)
      (unless dest
-       (setf dest (new (m::*mjs-float-array-type* 16))))
+       (setf dest (new (mjs:*mjs-float-array-type* 16))))
      (let* ((a (qw quat))
             (b (qx quat))
             (c (qy quat))
@@ -436,8 +437,8 @@ result as a new single-float vector."
      dest)))
 
 #++
-(quat-rotate-matrix (angle-axis-to-quaternion pi (m:vec 1 0 0))
-                    (m:matrix 1 0 0 0
+(quat-rotate-matrix (angle-axis-to-quaternion pi (mjs:vec 1 0 0))
+                    (mjs:matrix 1 0 0 0
                               0 1 0 0
                               0 0 1 0
                               0 0 0 1))

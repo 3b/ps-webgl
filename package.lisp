@@ -1,5 +1,7 @@
 (defpackage #:webgl-bindings
   (:use :cl :ps)
+  #-package-local-nicknames
+  (:nicknames #:%webgl #:%gl)
   (:export
    #:active-texture
    #:attach-shader
@@ -468,6 +470,9 @@
 
 (defpackage #:webgl-ps
   (:use :cl :ps :webgl-bindings)
+  #-package-local-nicknames
+  (:nicknames #:webgl #:gl)
+  #+package-local-nicknames 
   (:local-nicknames (#:api #:webgl-ps-api))
   (:export
    #:active-texture
