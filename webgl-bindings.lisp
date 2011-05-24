@@ -19,15 +19,17 @@ var containing the context, otherwise the value of the CL special
   ;; TODO: probably should define a symbol-macro to access the value
   ;;   of the members too? (for passing functions to other functions, etc)
   (declare (ignore ret))
-  `(ps:defpsmacro ,name ,(loop for (nil name) in args
-                            collect name)
-     (let* ((local-context (ps::ps-macroexpand '*webgl-context*))
-            (context (if (eq local-context '*webgl-context*)
-                         *webgl-context*
-                         local-context)))
-       `(funcall (ps:@ ,context ,',name)
-                 ,,@(loop for (nil name) in args
-                       collect name)))))
+  (let ((lname (if (consp name) (second name) name))
+        (jname (if (consp name) (first name) name))
+        (w (gensym "W-")))
+    `(ps:defpsmacro ,lname (&whole ,w ,@(loop for (nil name) in args
+                                           collect name))
+       (declare (ignore ,@(loop for (nil name) in args collect name)))
+       (let* ((local-context (ps::ps-macroexpand '*webgl-context*))
+              (context (if (eq local-context '*webgl-context*)
+                           *webgl-context*
+                           local-context)))
+         `(funcall (ps:@ ,context ,',jname) ,@(cdr ,w))))))
 
 
 ;;;; attributes
@@ -151,7 +153,7 @@ var containing the context, otherwise the value of the CL special
 (define-webgl-fun compile-shader void
   (webgl-shader shader))
 
-(define-webgl-fun copy-tex-image2d void
+(define-webgl-fun copy-tex-image-2d void
   (gl-enum target)
   (gl-int level)
   (gl-enum internalformat)
@@ -331,7 +333,7 @@ var containing the context, otherwise the value of the CL special
   (gl-float width))
 (define-webgl-fun link-program void
   (webgl-program program))
-(define-webgl-fun pixel-store-i void
+(define-webgl-fun (pixel-storei pixel-store-i) void
   (gl-enum pname)
   (gl-int param))
 (define-webgl-fun polygon-offset void
@@ -389,7 +391,8 @@ var containing the context, otherwise the value of the CL special
   (gl-enum zfail)
   (gl-enum zpass))
 
-(define-webgl-fun tex-image-2d void
+;; add alternate name for longer arglist
+(define-webgl-fun (tex-image-2-d tex-image-2d*) void
   (gl-enum target)
   (gl-int level)
   (gl-enum internalformat)
@@ -399,14 +402,14 @@ var containing the context, otherwise the value of the CL special
   (gl-enum format)
   (gl-enum type)
   (array-buffer-view pixels))
-#++
-(define-webgl-fun tex-image-2d void
+
+(define-webgl-fun (tex-image-2-d tex-image-2d) void
   (gl-enum target)
   (gl-int level)
   (gl-enum internalformat)
   (gl-enum format)
   (gl-enum type)
-  (image-data pixels))
+  (image-data pixels/image/canvas/video))
 #++
 (define-webgl-fun tex-image2d void
   (gl-enum target)
@@ -432,16 +435,16 @@ var containing the context, otherwise the value of the CL special
   (gl-enum type)
   (html-video-element video))
 
-(define-webgl-fun tex-parameter-f void
+(define-webgl-fun (tex-parameterf tex-parameter-f) void
   (gl-enum target)
   (gl-enum pname)
   (gl-float param))
-(define-webgl-fun tex-parameter-i void
+(define-webgl-fun (tex-parameteri tex-parameter-i) void
   (gl-enum target)
   (gl-enum pname)
   (gl-int param))
 
-(define-webgl-fun tex-sub-image-2d void
+(define-webgl-fun (tex-sub-image-2-d tex-sub-image-2d) void
   (gl-enum target)
   (gl-int level)
   (gl-int xoffset)
@@ -564,7 +567,7 @@ var containing the context, otherwise the value of the CL special
   (webgl-uniform-location location)
   (float32-array v))
 #++
-(define-webgl-fun uniform4-fv void
+(define-webgl-fun uniform-4fv void
   (webgl-uniform-location location)
   (float[] v))
 (define-webgl-fun uniform-4i void
@@ -584,6 +587,7 @@ var containing the context, otherwise the value of the CL special
   (webgl-uniform-location location)
   (gl-boolean transpose)
   (float32-array value))
+#++
 (define-webgl-fun uniform-matrix-2fv void
   (webgl-uniform-location location)
   (gl-boolean transpose)
@@ -592,6 +596,7 @@ var containing the context, otherwise the value of the CL special
   (webgl-uniform-location location)
   (gl-boolean transpose)
   (float32-array value))
+#++
 (define-webgl-fun uniform-matrix-3fv void
   (webgl-uniform-location location)
   (gl-boolean transpose)
@@ -600,6 +605,7 @@ var containing the context, otherwise the value of the CL special
   (webgl-uniform-location location)
   (gl-boolean transpose)
   (float32-array value))
+#++
 (define-webgl-fun uniform-matrix-4fv void
   (webgl-uniform-location location)
   (gl-boolean transpose)

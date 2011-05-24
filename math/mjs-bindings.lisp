@@ -36,7 +36,8 @@
            #:translate-1
            #:translate
            #:make-look-at
-           #:transpose))
+           #:transpose
+           #:matrix-clone))
 (in-package #:mjs-bindings)
 
 (defparameter *context* '(:v3 *v3* :m4 *m4x4))
@@ -49,37 +50,41 @@
   ;; TODO: probably should define a symbol-macro to access the value
   ;;   of the members too? (for passing functions to other functions, etc)
   (let ((lname (if (consp name) (second name) name))
-        (jname (if (consp name) (first name) name)))
-   `(ps:defpsmacro ,lname ,(loop for name in args
-                              collect name)
-      (let* ((local-context (ps::ps-macroexpand '*context*))
-             (context (if (eq local-context '*context*)
-                          *context*
-                          local-context)))
-        `(funcall (ps:@ ,(getf context ',object) ,',jname)
-                  ,,@(loop for name in args
-                        collect name))))))
+        (jname (if (consp name) (first name) name))
+        (w (gensym "W-")))
+    `(ps:defpsmacro ,lname (&whole ,w &optional ,@(loop for name in args
+                                             collect name))
+       (declare (ignore ,@(loop for name in args collect name)))
+       (let* ((local-context (ps::ps-macroexpand '*context*))
+              (context (if (eq local-context '*context*)
+                           *context*
+                           local-context)))
+         `(funcall (ps:@ ,(getf context ',object) ,',jname)
+                   ,@(cdr ,w))))))
 
 
 ;;;; attributes
-;; - looks like no scoped properties to worry about
-#++
 (defpsmacro %mjs-global (object name)
   (let* ((local-context (ps::ps-macroexpand '*context*))
          (context (if (eq local-context '*context*)
                       *context*
                       local-context)))
     `(ps:@ ,(getf context object) ,name)))
-#++
-(defmacro define-mjs-global (object name type)
+
+(defmacro define-mjs-global (object name)
   (declare (ignore type))
-  `(ps:define-ps-symbol-macro ,name
-       (%mjs-global ',object ,name)))
+  (let ((lname (if (consp name) (second name) name))
+        (jname (if (consp name) (first name) name)))
+    `(ps:define-ps-symbol-macro ,lname
+         (%mjs-global ',object ,jname))))
 
 ;;; unscoped globals
 (define-symbol-macro *mjs-version* +mjs_version+)
 (define-symbol-macro *mjs-do-assert* +mjs_do_assert+)
 (define-symbol-macro *mjs-float-array-type* +mjs_float_array_type+)
+
+;; scoped globals
+(define-mjs-global :m4 (i _i))
 
 (defpsmacro *mjs-float-array-type* (&rest r)
   `(+mjs_float_array_type+ ,@r))
