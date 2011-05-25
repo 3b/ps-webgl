@@ -1,5 +1,5 @@
 
-(defsystem :webgl-ps
+(defsystem :ps-webgl
   :depends-on (:parenscript)
   :serial t
   :components ((:file "package")
