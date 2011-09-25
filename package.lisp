@@ -917,3 +917,8 @@
    ;;
    ))
 
+
+(defpackage #:webgl-quat
+  (:use :ps :cl)
+  #+package-local-nicknames
+  (:local-nicknames (:mjs :mjs-bindings)))

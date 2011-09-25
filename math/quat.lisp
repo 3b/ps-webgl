@@ -1,13 +1,5 @@
 ;;; -*- Mode: LISP; slime-proxy-proxy-connection: t -*-
-(eval-when (:compile-toplevel :load-toplevel)
-  (defpackage #:webgl-quat
-    (:use :ps :cl)
-    #+package-local-nicknames
-    (:local-nicknames (:mjs :mjs-bindings))))
-
 (in-package #:webgl-quat)
-
-
 
 
 (defun quat-matrix (q dest)
@@ -89,7 +81,6 @@
 
 (eval-when ( :compile-toplevel :load-toplevel :execute)
   (defmacro %* (a b)
-    (format t "%* ~s ~s~%" a b)
     (cond
       ((or (eql a 0) (eql a 0.0)
            (eql b 0) (eql b 0.0))
