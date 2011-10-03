@@ -921,4 +921,25 @@
 (defpackage #:webgl-quat
   (:use :ps :cl)
   #+package-local-nicknames
-  (:local-nicknames (:mjs :mjs-bindings)))
+  (:local-nicknames (:mjs :mjs-bindings))
+  (:export
+   :quat-matrix
+   :qw
+   :qx
+   :qy
+   :qz
+   :angle-axis-to-quaternion
+   :quat-clone
+   :q-rotate-local-x
+   :q-rotate-local-y
+   :q-rotate-local-z
+   :q-rotate-world-x
+   :q-rotate-world-y
+   :q-rotate-world-z
+   :quat-rotate-vector
+   :quat-add
+   :quat-sub
+   :quat-mul
+   :quat-inverse
+   :quat-rotate-matrix
+))

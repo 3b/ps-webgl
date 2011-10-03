@@ -28,3 +28,20 @@
         (setf (@ ,@scoped-name)
               (lambda ,lambda-list
                 ,@body))))))
+
+;; todo: decide which of these names to use?
+(defpsmacro defun-wrapped ((&rest scoped-name) lambda-list &body body)
+  (let ((w (gensym)))
+    `(progn
+       (defmacro ,(car (last scoped-name)) (&whole ,w ,@lambda-list)
+         `(funcall (ps:@ ,@',scoped-name) ,@(cdr ,w)))
+       (setf (@ ,@scoped-name)
+             (lambda ,lambda-list
+               ,@body))
+       )))
+;; same thing for variables, member in object + symbol-macro to access it
+(defpsmacro defvar-wrapped ((&rest scoped-name) value)
+  `(progn
+     (define-symbol-macro ,(car (last scoped-name))
+         (ps:@ ,@scoped-name))
+       (setf (@ ,@scoped-name) ,value)))

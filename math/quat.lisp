@@ -137,7 +137,7 @@
          (,z (qz ,q)))
      ,@body))
 
-(defun-dest quat* (a b)
+(defun-dest quat-mul (a b)
   (with-quat (aw ax ay az) a
     (with-quat (bw bx by bz) b
       (%nq aw ax ay az bw bx by bz))))
@@ -234,6 +234,7 @@ result as a new single-float vector."
                                        (aref dest 1) v1
                                        (aref dest 2) v2))))
   dest)
+#++
 (quat-rotate-vector
  (q-rotate-local-x
   (q-rotate-local-y
@@ -243,7 +244,7 @@ result as a new single-float vector."
       (q-rotate-world-z (angle-axis-to-quaternion 2 (mjs:vec 1 1 0)) 1) 2) 3) 4) 5) 6)
  (mjs:vec 1 2 3))
 
-(defun-dest quat+ (a b)
+(defun-dest quat-add (a b)
   (dest (+ (aref a 0) (aref b 0))
         (+ (aref a 1) (aref b 1))
         (+ (aref a 2) (aref b 2))
@@ -252,7 +253,7 @@ result as a new single-float vector."
 (quat+ (angle-axis-to-quaternion 0.5 (mjs:vec 1 2 3))
        (angle-axis-to-quaternion 1.0 (mjs:vec 3 4 5)))
 
-(defun-dest quat- (a b)
+(defun-dest quat-sub (a b)
   (dest (- (aref a 0) (aref b 0))
         (- (aref a 1) (aref b 1))
         (- (aref a 2) (aref b 2))
